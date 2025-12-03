@@ -1,4 +1,4 @@
-# MarshalUI - Digital Marketplace Technical Documentation
+# Complete Technical Specification: Digital Marketplace Platform
 
 ## Table of Contents
 1. [Overview](#overview)
