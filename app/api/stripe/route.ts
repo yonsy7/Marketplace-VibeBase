@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
       const { data, error } = await resend.emails.send({
         from: "MarshalUI <onboarding@resend.dev>",
-        to: ["your_email"],
+        to: [session.customer_details?.email as string],
         subject: "Your Product from MarshalUI",
         react: ProductEmail({
           link: link as string,
