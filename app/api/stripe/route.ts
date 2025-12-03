@@ -1,5 +1,6 @@
 import ProductEmail from "@/app/components/ProductEmail";
 import { stripe } from "@/app/lib/stripe";
+import prisma from "@/app/lib/db";
 
 import { headers } from "next/headers";
 import { Resend } from "resend";
@@ -27,7 +28,39 @@ export async function POST(req: Request) {
     case "checkout.session.completed": {
       const session = event.data.object;
 
+      const templateId = session.metadata?.templateId;
       const link = session.metadata?.link;
+
+      if (templateId) {
+        // Create Order for template purchase
+        const template = await prisma.template.findUnique({
+          where: { id: templateId },
+          include: {
+            creator: {
+              select: {
+                connectedAccountId: true,
+              },
+            },
+          },
+        });
+
+        if (template) {
+          const amount = session.amount_total || 0;
+          const platformFee = Math.round(amount * 0.1);
+
+          await prisma.order.create({
+            data: {
+              buyerId: session.customer as string, // This should be mapped from Stripe customer
+              templateId: templateId,
+              paymentIntentId: session.payment_intent as string,
+              stripeSessionId: session.id,
+              amount: amount,
+              platformFee: platformFee,
+              downloadAvailable: true,
+            },
+          });
+        }
+      }
 
       const { data, error } = await resend.emails.send({
         from: "MarshalUI <onboarding@resend.dev>",

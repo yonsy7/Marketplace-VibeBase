@@ -8,7 +8,7 @@ import {
   type Editor,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useState } from "react";
+import { useEffect } from "react";
 
 export const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
@@ -93,6 +93,63 @@ export function TipTapEditor({
       setJson(editor.getJSON());
     },
   });
+
+  useEffect(() => {
+    if (editor && json) {
+      editor.commands.setContent(json);
+    }
+  }, [editor, json]);
+
+  return (
+    <div>
+      <MenuBar editor={editor} />
+      <EditorContent
+        editor={editor}
+        className="rounded-lg border p-2 min-h-[150px] mt-2"
+      />
+    </div>
+  );
+}
+
+// Simple Editor component for read-only or basic editing
+export function Editor({
+  content,
+  onChange,
+  editable = true,
+}: {
+  content: string | JSONContent;
+  onChange?: (content: JSONContent) => void;
+  editable?: boolean;
+}) {
+  const jsonContent = typeof content === 'string' 
+    ? (content ? JSON.parse(content) : null)
+    : content;
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: jsonContent,
+    editable,
+    editorProps: {
+      attributes: {
+        class: "focus:outline-none min-h-[150px] prose prose-sm sm:prose-base",
+      },
+    },
+    onUpdate: ({ editor }) => {
+      if (onChange) {
+        onChange(editor.getJSON());
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (editor && jsonContent) {
+      editor.commands.setContent(jsonContent);
+    }
+  }, [editor, jsonContent]);
+
+  if (!editable) {
+    return <EditorContent editor={editor} />;
+  }
 
   return (
     <div>

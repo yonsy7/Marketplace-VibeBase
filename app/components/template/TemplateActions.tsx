@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart, Download } from 'lucide-react';
 import { BuyTemplate } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { LikeButton } from '@/components/ui/LikeButton';
 
 interface TemplateActionsProps {
   template: {
@@ -17,9 +18,18 @@ interface TemplateActionsProps {
   canDownload?: boolean;
 }
 
-export function TemplateActions({ template, isLiked = false, canDownload = false }: TemplateActionsProps) {
+export function TemplateActions({ template, isLiked: initialIsLiked = false, canDownload = false }: TemplateActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+
+  useEffect(() => {
+    // Check if template is favorited
+    fetch(`/api/favorites/${template.id}`)
+      .then((res) => res.json())
+      .then((data) => setIsLiked(data.isFavorited || false))
+      .catch(() => {});
+  }, [template.id]);
 
   const handleBuy = async () => {
     if (template.price === 0) {
@@ -80,14 +90,12 @@ export function TemplateActions({ template, isLiked = false, canDownload = false
         )}
       </div>
 
-      <Button
-        variant="outline"
+      <LikeButton
+        templateId={template.id}
+        initialLikeCount={template.likeCount}
+        initialIsLiked={isLiked}
         className="w-full"
-        onClick={handleLike}
-      >
-        <Heart className={`mr-2 h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-        {isLiked ? 'Liked' : 'Add to Favorites'} ({template.likeCount})
-      </Button>
+      />
     </div>
   );
 }

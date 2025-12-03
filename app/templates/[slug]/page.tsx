@@ -158,7 +158,10 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
         </div>
 
         <div className="space-y-6">
-          <TemplateActions template={template} />
+          <TemplateActions 
+            template={template} 
+            canDownload={false} // TODO: Check if user has purchased
+          />
           <CreatorInfo creator={template.creator} />
         </div>
       </div>
