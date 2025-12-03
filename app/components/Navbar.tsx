@@ -17,7 +17,7 @@ export async function Navbar() {
       <div className="md:col-span-3">
         <Link href="/">
           <h1 className="text-2xl font-semibold ">
-            Marshal<span className="text-primary">UI</span>
+            Vibe<span className="text-primary">Base</span>
           </h1>
         </Link>
       </div>

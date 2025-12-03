@@ -34,20 +34,29 @@ export function UserNav({ email, name, userImage }: iAppProps) {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              jan@alenix.de
+              {email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/sell">Sell your Product</Link>
+            <Link href="/creator/dashboard">Creator Dashboard</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/creator/templates/new">New Template</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/sell">Sell (Legacy)</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/my-products">My Products</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/user/favorites">My Favorites</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/settings">Settings</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="my-products">My Products</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/billing">Billing</Link>

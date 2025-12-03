@@ -29,14 +29,18 @@ export async function POST(req: Request) {
 
       const link = session.metadata?.link;
 
-      const { data, error } = await resend.emails.send({
-        from: "MarshalUI <onboarding@resend.dev>",
-        to: ["your_email"],
-        subject: "Your Product from MarshalUI",
-        react: ProductEmail({
-          link: link as string,
-        }),
-      });
+      const customerEmail = session.customer_details?.email;
+      
+      if (customerEmail) {
+        const { data, error } = await resend.emails.send({
+          from: "VibeBase <onboarding@resend.dev>",
+          to: [customerEmail],
+          subject: "Your Template from VibeBase",
+          react: ProductEmail({
+            link: link as string,
+          }),
+        });
+      }
 
       break;
     }
