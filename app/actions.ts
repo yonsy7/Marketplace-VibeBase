@@ -246,3 +246,106 @@ export async function GetStripeDashboardLink() {
 
   return redirect(loginLink.url);
 }
+
+export async function BuyTemplate(formData: FormData) {
+  const id = formData.get("id") as string;
+  
+  const template = await prisma.template.findUnique({
+    where: {
+      id: id,
+    },
+    select: {
+      id: true,
+      title: true,
+      shortDesc: true,
+      price: true,
+      previewImages: true,
+      creator: {
+        select: {
+          connectedAccountId: true,
+        },
+      },
+      files: {
+        where: {
+          fileType: "PROJECT_ZIP",
+        },
+        take: 1,
+      },
+    },
+  });
+
+  if (!template) {
+    throw new Error("Template not found");
+  }
+
+  // Handle free templates
+  if (template.price === 0) {
+    // Create order directly for free templates
+    const { getUser } = getKindeServerSession();
+    const user = await getUser();
+    
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const order = await prisma.order.create({
+      data: {
+        buyerId: user.id,
+        templateId: template.id,
+        paymentIntentId: `free_${Date.now()}`,
+        amount: 0,
+        platformFee: 0,
+        downloadAvailable: true,
+      },
+    });
+
+    return redirect(`/download/${order.id}`);
+  }
+
+  const images =
+    template.previewImages &&
+    typeof template.previewImages === 'object' &&
+    'images' in template.previewImages
+      ? (template.previewImages as any).images || []
+      : [];
+
+  const downloadUrl = template.files[0]?.fileUrl || '';
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          unit_amount: template.price,
+          product_data: {
+            name: template.title,
+            description: template.shortDesc,
+            images: images.slice(0, 1),
+          },
+        },
+        quantity: 1,
+      },
+    ],
+    metadata: {
+      templateId: template.id,
+      link: downloadUrl,
+    },
+    payment_intent_data: {
+      application_fee_amount: Math.round(template.price * 0.1),
+      transfer_data: {
+        destination: template.creator.connectedAccountId,
+      },
+    },
+    success_url:
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/purchase/success"
+        : "https://marshal-ui-yt.vercel.app/purchase/success",
+    cancel_url:
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/purchase/cancel"
+        : "https://marshal-ui-yt.vercel.app/purchase/cancel",
+  });
+
+  return redirect(session.url as string);
+}
