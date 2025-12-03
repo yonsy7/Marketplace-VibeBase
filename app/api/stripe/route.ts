@@ -3,6 +3,7 @@ import { stripe } from "@/app/lib/stripe";
 
 import { headers } from "next/headers";
 import { Resend } from "resend";
+import type Stripe from "stripe";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
 
   const signature = headers().get("Stripe-Signature") as string;
 
-  let event;
+  let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
@@ -25,13 +26,23 @@ export async function POST(req: Request) {
 
   switch (event.type) {
     case "checkout.session.completed": {
-      const session = event.data.object;
+      const session = event.data.object as Stripe.Checkout.Session;
 
       const link = session.metadata?.link;
+      const recipientEmail =
+        session.customer_details?.email ?? session.customer_email;
 
-      const { data, error } = await resend.emails.send({
+      if (!recipientEmail) {
+        console.error(
+          "checkout.session.completed missing customer email",
+          session.id
+        );
+        break;
+      }
+
+      await resend.emails.send({
         from: "MarshalUI <onboarding@resend.dev>",
-        to: ["your_email"],
+        to: [recipientEmail],
         subject: "Your Product from MarshalUI",
         react: ProductEmail({
           link: link as string,
