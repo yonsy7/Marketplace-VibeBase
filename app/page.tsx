@@ -1,21 +1,54 @@
-import { ProductRow } from "./components/ProductRow";
+import { AISearchBox } from "./components/home/AISearchBox";
+import { StyleChips } from "./components/home/StyleChips";
+import { CategoryCards } from "./components/home/CategoryCards";
+import { PlatformBanner } from "./components/home/PlatformBanner";
+import { PopularTemplates } from "./components/home/PopularTemplates";
+import { NewArrivals } from "./components/home/NewArrivals";
 
 export default function Home() {
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-8 mb-24">
-      <div className="max-w-3xl mx-auto text-2xl sm:text-5xl lg:text-6xl font-semibold text-center">
-        <h1>Find the best Tailwind</h1>
-        <h1 className="text-primary">Templates & Icons</h1>
-        <p className="lg:text-lg text-muted-foreground mx-auto mt-5 w-[90%] font-normal text-base">
-          MarshalUi stands out as the premier marketplace for all things related
-          to tailwindcss, offering an unparalleled platform for both sellers and
-          buyers alike.
+      {/* Hero Section with AI Search */}
+      <div className="max-w-4xl mx-auto text-center mb-12">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
+          Find the best AI-Ready
+        </h1>
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-6">
+          Design Templates
+        </h1>
+        <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+          Discover premium templates optimized for v0.dev, Lovable, and other AI platforms.
+          HTML, React, and Next.js templates ready to use.
         </p>
+        <div className="max-w-2xl mx-auto">
+          <AISearchBox />
+        </div>
       </div>
-      <ProductRow category="newest" />
-      <ProductRow category="templates" />
-      <ProductRow category="icons" />
-      <ProductRow category="uikits" />
+
+      {/* Popular Styles */}
+      <div className="mb-16">
+        <StyleChips />
+      </div>
+
+      {/* Categories */}
+      <div className="mb-16">
+        <CategoryCards />
+      </div>
+
+      {/* Platform Banner */}
+      <div className="mb-16">
+        <PlatformBanner />
+      </div>
+
+      {/* Popular Templates */}
+      <div className="mb-16">
+        <PopularTemplates />
+      </div>
+
+      {/* New Arrivals */}
+      <div className="mb-16">
+        <NewArrivals />
+      </div>
     </section>
   );
 }
