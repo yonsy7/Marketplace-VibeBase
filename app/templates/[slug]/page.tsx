@@ -10,6 +10,7 @@ import { RelatedTemplates } from '@/app/components/template/RelatedTemplates';
 import { ReviewsList } from '@/app/components/reviews/ReviewsList';
 import { ReviewSummary } from '@/app/components/reviews/ReviewSummary';
 import { Breadcrumbs } from '@/app/components/layout/Breadcrumbs';
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 
 interface TemplatePageProps {
   params: {
@@ -53,6 +54,9 @@ export async function generateMetadata({ params }: TemplatePageProps) {
 }
 
 export default async function TemplatePage({ params }: TemplatePageProps) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
   const template = await prisma.template.findUnique({
     where: { slug: params.slug },
     include: {
@@ -130,6 +134,19 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
     data: { viewCount: { increment: 1 } },
   });
 
+  // Check if user has purchased this template
+  let canDownload = false;
+  if (user) {
+    const order = await prisma.order.findFirst({
+      where: {
+        buyerId: user.id,
+        templateId: template.id,
+        downloadAvailable: true,
+      },
+    });
+    canDownload = !!order;
+  }
+
   // Get related templates
   const relatedTemplates = await prisma.template.findMany({
     where: {
@@ -195,7 +212,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
         <div className="space-y-6">
           <TemplateActions 
             template={template} 
-            canDownload={false} // TODO: Check if user has purchased
+            canDownload={canDownload}
           />
           <CreatorInfo creator={template.creator} />
         </div>

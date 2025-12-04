@@ -59,10 +59,8 @@ export function TemplateActions({ template, isLiked: initialIsLiked = false, can
     }
   };
 
-  const handleLike = async () => {
-    // TODO: Implement like functionality
-    toast.info('Like functionality coming soon');
-  };
+  // Like functionality is handled by LikeButton component
+  // This handler is kept for backward compatibility but not used
 
   return (
     <div className="space-y-4">
