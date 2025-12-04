@@ -22,7 +22,7 @@ import { FileUploadZip } from './FileUploadZip';
 import { Editor } from '@/app/components/Editor';
 import { JSONContent } from '@tiptap/react';
 import { Toggle } from '@/components/ui/toggle';
-import { createTemplate } from '@/app/actions';
+import { createTemplate, updateTemplate } from '@/app/actions';
 import { toast } from 'sonner';
 import { TechStack, PlatformType } from '@prisma/client';
 
@@ -45,32 +45,51 @@ interface TemplateFormProps {
     id: string;
     name: string;
   }>;
+  initialData?: {
+    title: string;
+    byline: string;
+    shortDesc: string;
+    techStack: TechStack;
+    price: number;
+    isPaid: boolean;
+    liveDemoUrl: string;
+    images: string[];
+    styles: string[];
+    categoryIds: string[];
+    subcategoryIds: string[];
+    tagIds: string[];
+    platforms: PlatformType[];
+    files: Array<{ url: string; type: string; name: string; isPreview?: boolean }>;
+    description: string;
+  };
+  templateId?: string;
+  isEdit?: boolean;
 }
 
-export function TemplateForm({ categories, styleTags, tags }: TemplateFormProps) {
+export function TemplateForm({ categories, styleTags, tags, initialData, templateId, isEdit = false }: TemplateFormProps) {
   const router = useRouter();
-  const [state, formAction] = useFormState(createTemplate, null);
+  const [state, formAction] = useFormState(isEdit ? updateTemplate : createTemplate, null);
 
   const [formData, setFormData] = useState({
-    title: '',
-    byline: '',
-    shortDesc: '',
-    techStack: '' as TechStack | '',
-    price: 0,
-    isPaid: false,
-    liveDemoUrl: '',
-    images: [] as string[],
-    styles: [] as string[],
-    categoryIds: [] as string[],
-    subcategoryIds: [] as string[],
-    tagIds: [] as string[],
-    platforms: [] as PlatformType[],
-    files: [] as Array<{ url: string; type: string; name: string; isPreview?: boolean }>,
-    description: '' as string | JSONContent,
+    title: initialData?.title || '',
+    byline: initialData?.byline || '',
+    shortDesc: initialData?.shortDesc || '',
+    techStack: (initialData?.techStack || '') as TechStack | '',
+    price: initialData?.price || 0,
+    isPaid: initialData?.isPaid || false,
+    liveDemoUrl: initialData?.liveDemoUrl || '',
+    images: initialData?.images || [],
+    styles: initialData?.styles || [],
+    categoryIds: initialData?.categoryIds || [],
+    subcategoryIds: initialData?.subcategoryIds || [],
+    tagIds: initialData?.tagIds || [],
+    platforms: initialData?.platforms || [],
+    files: initialData?.files || [],
+    description: (initialData?.description || '') as string | JSONContent,
   });
 
   if (state?.status === 'success') {
-    toast.success('Template created successfully!');
+    toast.success(isEdit ? 'Template updated successfully!' : 'Template created successfully!');
     router.push(`/creator/templates`);
   }
 
@@ -96,6 +115,10 @@ export function TemplateForm({ categories, styleTags, tags }: TemplateFormProps)
     formDataObj.append('platforms', JSON.stringify(formData.platforms));
     formDataObj.append('files', JSON.stringify(formData.files));
     formDataObj.append('description', formData.description);
+    
+    if (isEdit && templateId) {
+      formDataObj.append('templateId', templateId);
+    }
 
     formAction(formDataObj);
   };
@@ -362,7 +385,9 @@ export function TemplateForm({ categories, styleTags, tags }: TemplateFormProps)
         >
           Save as Draft
         </Button>
-        <Button type="submit">Submit for Review</Button>
+        <Button type="submit">
+          {isEdit ? 'Update Template' : 'Submit for Review'}
+        </Button>
       </div>
     </form>
   );

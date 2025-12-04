@@ -6,14 +6,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface ReviewsListProps {
   templateId: string;
+  initialReviews?: any[];
 }
 
-export function ReviewsList({ templateId }: ReviewsListProps) {
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export function ReviewsList({ templateId, initialReviews = [] }: ReviewsListProps) {
+  const [reviews, setReviews] = useState<any[]>(initialReviews);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchReviews();
+    if (initialReviews.length === 0) {
+      fetchReviews();
+    }
   }, [templateId]);
 
   const fetchReviews = async () => {

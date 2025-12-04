@@ -8,7 +8,17 @@ import { ResultsHeader } from './ResultsHeader';
 import { EmptyState } from './EmptyState';
 import { Pagination } from '@/components/ui/pagination';
 
-export function TemplatesExplorer() {
+interface TemplatesExplorerProps {
+  categories: Array<{
+    id: string;
+    name: string;
+    subcategories: Array<{ id: string; name: string }>;
+  }>;
+  styleTags: Array<{ id: string; name: string }>;
+  tags: Array<{ id: string; name: string }>;
+}
+
+export function TemplatesExplorer({ categories, styleTags, tags }: TemplatesExplorerProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [templates, setTemplates] = useState<any[]>([]);
@@ -39,7 +49,7 @@ export function TemplatesExplorer() {
     fetchTemplates();
   }, [fetchTemplates]);
 
-  const updateFilters = (newParams: Record<string, string | string[] | null>) => {
+  const updateFilters = (newParams: Record<string, string | string[] | number | null>) => {
     const params = new URLSearchParams(searchParams.toString());
 
     Object.entries(newParams).forEach(([key, value]) => {
@@ -68,7 +78,8 @@ export function TemplatesExplorer() {
     tags: searchParams.getAll('tag'),
     techStack: searchParams.get('techStack'),
     platforms: searchParams.getAll('platform'),
-    price: searchParams.get('price'),
+    priceMin: searchParams.get('priceMin') ? parseInt(searchParams.get('priceMin')!) : null,
+    priceMax: searchParams.get('priceMax') ? parseInt(searchParams.get('priceMax')!) : null,
     sort: searchParams.get('sort') || 'recent',
     search: searchParams.get('search'),
   };
@@ -80,7 +91,13 @@ export function TemplatesExplorer() {
   return (
     <div className="flex gap-8">
       <aside className="w-64 flex-shrink-0">
-        <FilterSidebar filters={activeFilters} onFilterChange={updateFilters} />
+        <FilterSidebar
+          filters={activeFilters}
+          onFilterChange={updateFilters}
+          categories={categories}
+          styleTags={styleTags}
+          tags={tags}
+        />
       </aside>
 
       <main className="flex-1 space-y-6">

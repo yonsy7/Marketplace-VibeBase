@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
     const subcategories = searchParams.getAll('subcategory');
     const tags = searchParams.getAll('tag');
     const platforms = searchParams.getAll('platform') as PlatformType[];
-    const priceFilter = searchParams.get('price'); // 'free', 'paid', or range like '0-50'
+    const priceMin = searchParams.get('priceMin') ? parseInt(searchParams.get('priceMin')!) : null;
+    const priceMax = searchParams.get('priceMax') ? parseInt(searchParams.get('priceMax')!) : null;
     const search = searchParams.get('search');
 
     // Tri
@@ -103,14 +104,15 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Filtre par prix
-    if (priceFilter === 'free') {
-      where.price = 0;
-    } else if (priceFilter === 'paid') {
-      where.price = { gt: 0 };
-    } else if (priceFilter?.includes('-')) {
-      const [min, max] = priceFilter.split('-').map(Number);
-      where.price = { gte: min * 100, lte: max * 100 }; // Convert to cents
+    // Filtre par prix (en cents)
+    if (priceMin !== null || priceMax !== null) {
+      where.price = {};
+      if (priceMin !== null) {
+        where.price.gte = priceMin * 100;
+      }
+      if (priceMax !== null) {
+        where.price.lte = priceMax * 100;
+      }
     }
 
     // Recherche textuelle

@@ -1,13 +1,24 @@
 import { Suspense } from 'react';
 import { TemplatesExplorer } from '@/app/components/explore/TemplatesExplorer';
 import { TemplatesExplorerSkeleton } from '@/app/components/explore/TemplatesExplorerSkeleton';
+import prisma from '@/app/lib/db';
 
 export const metadata = {
   title: 'Explore Templates | AI-Ready Design Templates',
   description: 'Browse and discover AI-ready design templates for HTML, React, and Next.js',
 };
 
-export default function TemplatesPage() {
+export default async function TemplatesPage() {
+  const [categories, styleTags, tags] = await Promise.all([
+    prisma.category.findMany({
+      include: {
+        subcategories: true,
+      },
+    }),
+    prisma.styleTag.findMany(),
+    prisma.tag.findMany(),
+  ]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -18,7 +29,11 @@ export default function TemplatesPage() {
       </div>
 
       <Suspense fallback={<TemplatesExplorerSkeleton />}>
-        <TemplatesExplorer />
+        <TemplatesExplorer
+          categories={categories}
+          styleTags={styleTags}
+          tags={tags}
+        />
       </Suspense>
     </div>
   );

@@ -5,28 +5,48 @@ import { RatingStars } from '@/components/ui/RatingStars';
 import { Progress } from '@/components/ui/progress';
 
 interface ReviewSummaryProps {
-  templateId: string;
+  template: {
+    id: string;
+    ratingAverage: number;
+    ratingCount: number;
+    reviews?: Array<{ rating: number }>;
+  };
 }
 
-export function ReviewSummary({ templateId }: ReviewSummaryProps) {
+export function ReviewSummary({ template }: ReviewSummaryProps) {
   const [summary, setSummary] = useState({
-    average: 0,
-    total: 0,
+    average: template.ratingAverage || 0,
+    total: template.ratingCount || 0,
     distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
   });
 
   useEffect(() => {
-    fetchSummary();
-  }, [templateId]);
+    if (template.reviews && template.reviews.length > 0) {
+      calculateSummary(template.reviews);
+    } else {
+      fetchSummary();
+    }
+  }, [template.id]);
+
+  const calculateSummary = (reviews: Array<{ rating: number }>) => {
+    const total = reviews.length;
+    const average = total > 0 ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / total : 0;
+    
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach((r) => {
+      distribution[r.rating as keyof typeof distribution]++;
+    });
+
+    setSummary({ average, total, distribution });
+  };
 
   const fetchSummary = async () => {
     try {
-      const response = await fetch(`/api/reviews?templateId=${templateId}`);
+      const response = await fetch(`/api/reviews?templateId=${template.id}`);
       const data = await response.json();
       const reviews = data.reviews || [];
 
-      const total = reviews.length;
-      const average = total > 0 ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / total : 0;
+      calculateSummary(reviews);
       
       const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
       reviews.forEach((review: any) => {

@@ -7,6 +7,8 @@ import { TemplateActions } from '@/app/components/template/TemplateActions';
 import { TemplateDetails } from '@/app/components/template/TemplateDetails';
 import { CreatorInfo } from '@/app/components/template/CreatorInfo';
 import { RelatedTemplates } from '@/app/components/template/RelatedTemplates';
+import { ReviewsList } from '@/app/components/reviews/ReviewsList';
+import { ReviewSummary } from '@/app/components/reviews/ReviewSummary';
 
 interface TemplatePageProps {
   params: {
@@ -97,6 +99,23 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
           favorites: true,
         },
       },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+              profileImage: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 10,
+      },
     },
   });
 
@@ -155,6 +174,14 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
           <TemplatePreview template={template} />
           <TemplateGallery template={template} />
           <TemplateDetails template={template} />
+          
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+              <ReviewSummary template={template} />
+            </div>
+            <ReviewsList templateId={template.id} initialReviews={template.reviews || []} />
+          </div>
         </div>
 
         <div className="space-y-6">

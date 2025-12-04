@@ -349,3 +349,72 @@ export async function BuyTemplate(formData: FormData) {
 
   return redirect(session.url as string);
 }
+
+export async function updateProfile(prevState: any, formData: FormData) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return {
+      status: 'error' as const,
+      message: 'Unauthorized',
+    };
+  }
+
+  const userId = formData.get('userId') as string;
+  const username = formData.get('username') as string;
+  const bio = formData.get('bio') as string;
+  const avatarUrl = formData.get('avatarUrl') as string;
+
+  // Verify ownership
+  if (userId !== user.id) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
+    if (dbUser?.role !== 'ADMIN') {
+      return {
+        status: 'error' as const,
+        message: 'Unauthorized',
+      };
+    }
+  }
+
+  // Validate username format
+  if (!/^[a-z0-9-]+$/.test(username)) {
+    return {
+      status: 'error' as const,
+      message: 'Username can only contain lowercase letters, numbers, and hyphens',
+    };
+  }
+
+  // Check username uniqueness
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      username: username,
+      id: { not: userId },
+    },
+  });
+
+  if (existingUser) {
+    return {
+      status: 'error' as const,
+      message: 'Username already taken',
+    };
+  }
+
+  // Update user
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      username,
+      bio: bio || null,
+      avatarUrl: avatarUrl || null,
+    },
+  });
+
+  return {
+    status: 'success' as const,
+    message: 'Profile updated successfully!',
+  };
+}

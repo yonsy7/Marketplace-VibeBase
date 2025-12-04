@@ -13,7 +13,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Edit, Trash2, ExternalLink } from 'lucide-react';
+import { Eye, Edit, ExternalLink } from 'lucide-react';
+import { DeleteTemplateDialog } from './DeleteTemplateDialog';
 import { formatPrice } from '@/app/lib/utils';
 import { TemplateStatus } from '@prisma/client';
 
@@ -148,16 +149,11 @@ export function TemplatesTable({ templates }: TemplatesTableProps) {
                           <Edit className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          // TODO: Implement delete
-                          console.log('Delete template:', template.id);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      <DeleteTemplateDialog
+                        templateId={template.id}
+                        templateTitle={template.title}
+                        hasSales={template._count.orders > 0}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
