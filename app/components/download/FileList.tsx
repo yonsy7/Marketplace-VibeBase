@@ -10,7 +10,7 @@ interface FileListProps {
     fileName: string;
     fileType: string;
     fileUrl: string;
-    fileSize?: number;
+    fileSize?: number | null;
   }>;
   orderId: string;
 }

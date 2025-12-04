@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { RatingInput } from '@/components/ui/RatingInput';
+import { RatingInput } from '@/app/components/ui/RatingInput';
 import { toast } from 'sonner';
 
 interface ReviewFormProps {

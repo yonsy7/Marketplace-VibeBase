@@ -1,6 +1,8 @@
+'use client';
+
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 interface TemplateDetailsProps {
   template: {
@@ -10,9 +12,11 @@ interface TemplateDetailsProps {
 }
 
 export function TemplateDetails({ template }: TemplateDetailsProps) {
-  const content = typeof template.longDesc === 'string' 
-    ? JSON.parse(template.longDesc || '{}')
-    : template.longDesc || {};
+  const content = useMemo(() => {
+    return typeof template.longDesc === 'string' 
+      ? JSON.parse(template.longDesc || '{}')
+      : template.longDesc || {};
+  }, [template.longDesc]);
 
   const editor = useEditor({
     extensions: [StarterKit],

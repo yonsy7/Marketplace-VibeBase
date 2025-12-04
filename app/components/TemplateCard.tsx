@@ -14,7 +14,7 @@ interface TemplateCardProps {
     id: string;
     slug: string;
     title: string;
-    byline?: string;
+    byline?: string | null;
     shortDesc: string;
     price: number;
     techStack: string;

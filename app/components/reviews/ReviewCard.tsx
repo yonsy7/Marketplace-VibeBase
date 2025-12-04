@@ -1,4 +1,4 @@
-import { RatingStars } from '@/components/ui/RatingStars';
+import { RatingStars } from '@/app/components/ui/RatingStars';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 

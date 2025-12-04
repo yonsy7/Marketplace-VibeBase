@@ -9,6 +9,7 @@ interface SalesChartProps {
     orders: Array<{
       amount: number;
       createdAt: Date;
+      platformFee?: number;
     }>;
   }>;
 }
@@ -34,7 +35,7 @@ export function SalesChart({ templates }: SalesChartProps) {
         const index = 29 - daysAgo;
         if (index >= 0 && index < last30Days.length) {
           last30Days[index].sales += 1;
-          last30Days[index].revenue += order.amount - order.platformFee;
+          last30Days[index].revenue += order.amount - (order.platformFee || 0);
         }
       }
     });

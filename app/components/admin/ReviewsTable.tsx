@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { RatingStars } from '@/components/ui/RatingStars';
+import { RatingStars } from '@/app/components/ui/RatingStars';
 import { Trash2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';

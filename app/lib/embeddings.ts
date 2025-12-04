@@ -1,4 +1,5 @@
 import prisma from '@/app/lib/db';
+import { Prisma } from '@prisma/client';
 import { generateEmbedding } from '@/app/lib/openai';
 
 /**
@@ -134,7 +135,7 @@ export async function findSimilarTemplates(
   const templates = await prisma.template.findMany({
     where: {
       status: 'PUBLISHED',
-      embedding: { not: null },
+      embedding: { not: Prisma.JsonNull },
       ...(excludeTemplateId ? { id: { not: excludeTemplateId } } : {}),
     },
     include: {
@@ -177,10 +178,10 @@ export async function findSimilarTemplates(
       }
 
       const templateEmbedding = Array.isArray(template.embedding)
-        ? template.embedding
+        ? (template.embedding as number[])
         : Object.values(template.embedding as Record<string, number>);
 
-      const similarity = cosineSimilarity(queryEmbedding, templateEmbedding);
+      const similarity = cosineSimilarity(queryEmbedding, templateEmbedding as number[]);
 
       return {
         template,

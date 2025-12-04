@@ -10,8 +10,8 @@ import prisma from '@/app/lib/db';
 interface Category {
   id: string;
   name: string;
-  description?: string;
-  icon?: string;
+  description?: string | null;
+  icon?: string | null;
 }
 
 interface CategorySelectorProps {

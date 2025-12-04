@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
                 ratingAverage: template.ratingAverage,
                 ratingCount: template.ratingCount,
                 likeCount: template.likeCount,
-                styles: template.styles.map((s) => ({ styleTag: { name: s.styleTag.name } })),
+                styles: template.styles.map((s: any) => ({ styleTag: { name: s.styleTag.name } })),
                 platforms: template.platforms,
                 score: Math.round(similarity * 100) / 100,
                 explanation,

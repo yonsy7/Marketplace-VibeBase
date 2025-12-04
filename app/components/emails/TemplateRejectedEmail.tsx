@@ -25,7 +25,7 @@ export default function TemplateRejectedEmail({
           <Container style={container}>
             <Text className="text-2xl font-semibold">Hello,</Text>
             <Text className="text-lg text-gray-600">
-              We've reviewed your template submission <strong>{templateTitle}</strong> and unfortunately, it doesn't meet our quality standards at this time.
+              We&apos;ve reviewed your template submission <strong>{templateTitle}</strong> and unfortunately, it doesn&apos;t meet our quality standards at this time.
             </Text>
             {reason && (
               <Section className="bg-gray-50 p-4 rounded-lg mt-4">

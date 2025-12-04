@@ -53,7 +53,7 @@ export default async function FavoritesPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">My Favorites</h1>
         <p className="text-muted-foreground mt-2">
-          Templates you've liked and saved
+          Templates you&apos;ve liked and saved
         </p>
       </div>
 

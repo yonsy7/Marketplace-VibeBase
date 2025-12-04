@@ -70,7 +70,7 @@ export default async function CreatorDashboard() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <SalesChart templates={templates} />
+        <SalesChart templates={templates as any} />
         <div className="lg:col-span-2">
           <TemplatesTable templates={templates} />
         </div>

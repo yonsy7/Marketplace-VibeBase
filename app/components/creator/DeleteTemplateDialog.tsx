@@ -61,7 +61,7 @@ export function DeleteTemplateDialog({ templateId, templateTitle, hasSales }: De
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Template</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete "{templateTitle}"? This action cannot be undone.
+            Are you sure you want to delete &quot;{templateTitle}&quot;? This action cannot be undone.
             {hasSales && (
               <span className="block mt-2 text-destructive font-medium">
                 This template has sales and cannot be deleted.

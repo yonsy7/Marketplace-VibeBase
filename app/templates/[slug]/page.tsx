@@ -175,18 +175,18 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
         ]}
         className="mb-6"
       />
-      <TemplateHeader template={template} />
+      <TemplateHeader template={template as any} />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
         <div className="lg:col-span-2 space-y-8">
-          <TemplatePreview template={template} />
-          <TemplateGallery template={template} />
-          <TemplateDetails template={template} />
+          <TemplatePreview template={template as any} />
+          <TemplateGallery template={template as any} />
+          <TemplateDetails template={template as any} />
           
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
-              <ReviewSummary template={template} />
+              <ReviewSummary template={template as any} />
             </div>
             <ReviewsList templateId={template.id} initialReviews={template.reviews || []} />
           </div>
@@ -194,16 +194,16 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
 
         <div className="space-y-6">
           <TemplateActions 
-            template={template} 
+            template={template as any} 
             canDownload={false} // TODO: Check if user has purchased
           />
-          <CreatorInfo creator={template.creator} />
+          <CreatorInfo creator={template.creator as any} />
         </div>
       </div>
 
       {relatedTemplates.length > 0 && (
         <div className="mt-12">
-          <RelatedTemplates templates={relatedTemplates} />
+          <RelatedTemplates templates={relatedTemplates as any} />
         </div>
       )}
     </div>

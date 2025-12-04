@@ -43,7 +43,7 @@ export default async function PurchasesPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">My Purchases</h1>
         <p className="text-muted-foreground mt-2">
-          Templates you've purchased and downloaded
+          Templates you&apos;ve purchased and downloaded
         </p>
       </div>
 
