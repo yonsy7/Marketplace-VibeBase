@@ -49,9 +49,26 @@ export async function POST(req: Request) {
           const amount = session.amount_total || 0;
           const platformFee = Math.round(amount * 0.1);
 
+          // Find user by email from Stripe session
+          const customerEmail = session.customer_details?.email;
+          if (!customerEmail) {
+            console.error('No customer email in Stripe session');
+            return new Response("Customer email not found", { status: 400 });
+          }
+
+          const user = await prisma.user.findUnique({
+            where: { email: customerEmail },
+            select: { id: true },
+          });
+
+          if (!user) {
+            console.error('User not found for email:', customerEmail);
+            return new Response("User not found", { status: 400 });
+          }
+
           const order = await prisma.order.create({
             data: {
-              buyerId: session.customer as string, // This should be mapped from Stripe customer
+              buyerId: user.id,
               templateId: templateId,
               paymentIntentId: session.payment_intent as string,
               stripeSessionId: session.id,
@@ -64,15 +81,20 @@ export async function POST(req: Request) {
           // Send purchase email to buyer
           const downloadLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://marshal-ui-yt.vercel.app'}/download/${order.id}`;
           
-          await resend.emails.send({
-            from: "MarshalUI <onboarding@resend.dev>",
-            to: [session.customer_details?.email as string],
-            subject: `Your Template: ${template.title}`,
-            react: PurchaseEmail({
-              link: downloadLink,
-              templateTitle: template.title,
-            }),
-          });
+          try {
+            await resend.emails.send({
+              from: "MarshalUI <onboarding@resend.dev>",
+              to: [customerEmail],
+              subject: `Your Template: ${template.title}`,
+              react: PurchaseEmail({
+                link: downloadLink,
+                templateTitle: template.title,
+              }),
+            });
+          } catch (error) {
+            console.error('Failed to send purchase email:', error);
+            // Don't fail the webhook if email fails
+          }
 
           // Send sale notification email to creator
           const creator = await prisma.user.findUnique({
@@ -82,18 +104,23 @@ export async function POST(req: Request) {
 
           if (creator) {
             const netAmount = amount - platformFee;
-            await resend.emails.send({
-              from: "MarshalUI <onboarding@resend.dev>",
-              to: [creator.email],
-              subject: `New Sale: ${template.title}`,
-              react: NewSaleEmail({
-                templateTitle: template.title,
-                amount: amount,
-                platformFee: platformFee,
-                netAmount: netAmount,
-                templateSlug: template.slug,
-              }),
-            });
+            try {
+              await resend.emails.send({
+                from: "MarshalUI <onboarding@resend.dev>",
+                to: [creator.email],
+                subject: `New Sale: ${template.title}`,
+                react: NewSaleEmail({
+                  templateTitle: template.title,
+                  amount: amount,
+                  platformFee: platformFee,
+                  netAmount: netAmount,
+                  templateSlug: template.slug,
+                }),
+              });
+            } catch (error) {
+              console.error('Failed to send sale notification email:', error);
+              // Don't fail the webhook if email fails
+            }
           }
         }
       }
