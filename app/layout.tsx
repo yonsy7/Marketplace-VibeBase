@@ -7,6 +7,7 @@ import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";
 import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "./components/layout/Footer";
+import { ThemeProvider } from "next-themes";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,13 +40,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
-        <Toaster richColors theme="light" closeButton />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+          <Navbar />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
+          <Toaster richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

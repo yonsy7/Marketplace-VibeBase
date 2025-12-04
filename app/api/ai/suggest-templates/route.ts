@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { openai, generateEmbedding, generateMatchExplanation } from '@/app/lib/openai';
+import { findSimilarTemplates } from '@/app/lib/embeddings';
 import prisma from '@/app/lib/db';
 import { TemplateStatus } from '@prisma/client';
 
@@ -14,10 +15,66 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, use simple text search until embeddings are fully set up
-    // TODO: Implement vector search with embeddings
+    // Try vector search if OpenAI is available and embeddings exist
+    if (openai) {
+      try {
+        // Generate embedding for the query
+        const queryEmbedding = await generateEmbedding(query);
 
-    // Simple keyword-based search
+        // Find similar templates using vector search
+        const similarTemplates = await findSimilarTemplates(queryEmbedding, 6);
+
+        if (similarTemplates.length > 0) {
+          // Generate explanations and format results
+          const results = await Promise.all(
+            similarTemplates.map(async ({ template, similarity }) => {
+              let explanation = `This template matches your request: ${template.title}`;
+              try {
+                explanation = await generateMatchExplanation(
+                  query,
+                  template.title,
+                  template.shortDesc
+                );
+              } catch (error) {
+                console.error('Error generating explanation:', error);
+              }
+
+              return {
+                id: template.id,
+                slug: template.slug,
+                title: template.title,
+                byline: template.byline,
+                shortDesc: template.shortDesc,
+                price: template.price,
+                techStack: template.techStack,
+                previewImages: template.previewImages,
+                ratingAverage: template.ratingAverage,
+                ratingCount: template.ratingCount,
+                likeCount: template.likeCount,
+                styles: template.styles.map((s) => ({ styleTag: { name: s.styleTag.name } })),
+                platforms: template.platforms,
+                score: Math.round(similarity * 100) / 100,
+                explanation,
+              };
+            })
+          );
+
+          return NextResponse.json({
+            templates: results,
+            meta: {
+              totalMatches: results.length,
+              query: query.trim(),
+              method: 'vector_search',
+            },
+          });
+        }
+      } catch (error) {
+        console.error('Vector search failed, falling back to text search:', error);
+        // Fall through to text search
+      }
+    }
+
+    // Fallback to simple text search
     const searchTerms = query.toLowerCase().split(/\s+/);
     
     const templates = await prisma.template.findMany({
@@ -124,6 +181,7 @@ export async function POST(request: NextRequest) {
       meta: {
         totalMatches: results.length,
         query: query.trim(),
+        method: 'text_search',
       },
     });
   } catch (error) {

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/app/lib/auth';
 import prisma from '@/app/lib/db';
 import { TemplateStatus } from '@prisma/client';
+import { Resend } from 'resend';
+import TemplateRejectedEmail from '@/app/components/emails/TemplateRejectedEmail';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(
   request: NextRequest,
@@ -33,8 +37,22 @@ export async function POST(
       },
     });
 
-    // TODO: Send email notification to creator with reason
-    // await sendTemplateRejectedEmail(template.creator.email, template.title, reason);
+    // Send email notification to creator with reason
+    if (template.creator.email && resend) {
+      try {
+        await resend.emails.send({
+          from: "MarshalUI <onboarding@resend.dev>",
+          to: [template.creator.email],
+          subject: `Template Review: ${template.title}`,
+          react: TemplateRejectedEmail({
+            templateTitle: template.title,
+            reason: reason,
+          }),
+        });
+      } catch (error) {
+        console.error('Error sending rejection email:', error);
+      }
+    }
 
     return NextResponse.json({ success: true, template });
   } catch (error) {

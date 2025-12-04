@@ -9,6 +9,7 @@ import { CreatorInfo } from '@/app/components/template/CreatorInfo';
 import { RelatedTemplates } from '@/app/components/template/RelatedTemplates';
 import { ReviewsList } from '@/app/components/reviews/ReviewsList';
 import { ReviewSummary } from '@/app/components/reviews/ReviewSummary';
+import { Breadcrumbs } from '@/app/components/layout/Breadcrumbs';
 
 interface TemplatePageProps {
   params: {
@@ -167,6 +168,13 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumbs
+        items={[
+          { label: 'Templates', href: '/templates' },
+          { label: template.title },
+        ]}
+        className="mb-6"
+      />
       <TemplateHeader template={template} />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">

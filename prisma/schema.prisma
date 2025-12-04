@@ -102,6 +102,7 @@ model Template {
   ratingCount    Int            @default(0)
   likeCount      Int            @default(0)
   viewCount      Int            @default(0)
+  embedding      Json?          // Vector embedding for AI search (1536 dimensions for text-embedding-3-small)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   

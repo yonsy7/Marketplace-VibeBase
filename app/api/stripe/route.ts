@@ -1,4 +1,5 @@
-import ProductEmail from "@/app/components/ProductEmail";
+import PurchaseEmail from "@/app/components/emails/PurchaseEmail";
+import NewSaleEmail from "@/app/components/emails/NewSaleEmail";
 import { stripe } from "@/app/lib/stripe";
 import prisma from "@/app/lib/db";
 
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
           const amount = session.amount_total || 0;
           const platformFee = Math.round(amount * 0.1);
 
-          await prisma.order.create({
+          const order = await prisma.order.create({
             data: {
               buyerId: session.customer as string, // This should be mapped from Stripe customer
               templateId: templateId,
@@ -59,17 +60,43 @@ export async function POST(req: Request) {
               downloadAvailable: true,
             },
           });
+
+          // Send purchase email to buyer
+          const downloadLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://marshal-ui-yt.vercel.app'}/download/${order.id}`;
+          
+          await resend.emails.send({
+            from: "MarshalUI <onboarding@resend.dev>",
+            to: [session.customer_details?.email as string],
+            subject: `Your Template: ${template.title}`,
+            react: PurchaseEmail({
+              link: downloadLink,
+              templateTitle: template.title,
+            }),
+          });
+
+          // Send sale notification email to creator
+          const creator = await prisma.user.findUnique({
+            where: { id: template.creatorId },
+            select: { email: true },
+          });
+
+          if (creator) {
+            const netAmount = amount - platformFee;
+            await resend.emails.send({
+              from: "MarshalUI <onboarding@resend.dev>",
+              to: [creator.email],
+              subject: `New Sale: ${template.title}`,
+              react: NewSaleEmail({
+                templateTitle: template.title,
+                amount: amount,
+                platformFee: platformFee,
+                netAmount: netAmount,
+                templateSlug: template.slug,
+              }),
+            });
+          }
         }
       }
-
-      const { data, error } = await resend.emails.send({
-        from: "MarshalUI <onboarding@resend.dev>",
-        to: [session.customer_details?.email as string],
-        subject: "Your Product from MarshalUI",
-        react: ProductEmail({
-          link: link as string,
-        }),
-      });
 
       break;
     }

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import prisma from '@/app/lib/db';
 import { PublicProfile } from '@/app/components/creator/PublicProfile';
 import { CreatorTemplates } from '@/app/components/creator/CreatorTemplates';
+import { Breadcrumbs } from '@/app/components/layout/Breadcrumbs';
 
 interface CreatorPageProps {
   params: {
@@ -93,6 +94,13 @@ export default async function CreatorPage({ params }: CreatorPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
+      <Breadcrumbs
+        items={[
+          { label: 'Creators', href: '/templates' },
+          { label: `${creator.firstName} ${creator.lastName}` },
+        ]}
+        className="mb-6"
+      />
       <PublicProfile
         creator={{
           id: creator.id,
