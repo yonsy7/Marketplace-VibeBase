@@ -7,6 +7,7 @@ import { navbarLinks } from "./NavbarLinks";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 export function MobileMenu() {
   const location = usePathname();
