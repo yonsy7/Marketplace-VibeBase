@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ReviewCard } from './ReviewCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -13,13 +13,7 @@ export function ReviewsList({ templateId, initialReviews = [] }: ReviewsListProp
   const [reviews, setReviews] = useState<any[]>(initialReviews);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (initialReviews.length === 0) {
-      fetchReviews();
-    }
-  }, [templateId]);
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/reviews?templateId=${templateId}`);
@@ -30,7 +24,13 @@ export function ReviewsList({ templateId, initialReviews = [] }: ReviewsListProp
     } finally {
       setLoading(false);
     }
-  };
+  }, [templateId]);
+
+  useEffect(() => {
+    if (initialReviews.length === 0) {
+      fetchReviews();
+    }
+  }, [templateId, initialReviews.length, fetchReviews]);
 
   if (loading) {
     return (

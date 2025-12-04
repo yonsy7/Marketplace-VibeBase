@@ -6,7 +6,7 @@ import { FilterSidebar } from './FilterSidebar';
 import { TemplatesGrid } from './TemplatesGrid';
 import { ResultsHeader } from './ResultsHeader';
 import { EmptyState } from './EmptyState';
-import { Pagination } from '@/components/ui/pagination';
+import { PlatformType } from '@prisma/client';
 
 interface TemplatesExplorerProps {
   categories: Array<{
@@ -37,7 +37,12 @@ export function TemplatesExplorer({ categories, styleTags, tags }: TemplatesExpl
       const response = await fetch(`/api/templates?${params.toString()}`);
       const data = await response.json();
       setTemplates(data.templates || []);
-      setPagination(data.pagination || pagination);
+      setPagination(data.pagination || {
+        page: 1,
+        limit: 24,
+        total: 0,
+        totalPages: 0,
+      });
     } catch (error) {
       console.error('Error fetching templates:', error);
     } finally {
@@ -59,7 +64,7 @@ export function TemplatesExplorer({ categories, styleTags, tags }: TemplatesExpl
         params.delete(key);
         value.forEach((v) => params.append(key, v));
       } else {
-        params.set(key, value);
+        params.set(key, String(value));
       }
     });
 
@@ -77,7 +82,7 @@ export function TemplatesExplorer({ categories, styleTags, tags }: TemplatesExpl
     subcategories: searchParams.getAll('subcategory'),
     tags: searchParams.getAll('tag'),
     techStack: searchParams.get('techStack'),
-    platforms: searchParams.getAll('platform'),
+    platforms: searchParams.getAll('platform') as PlatformType[],
     priceMin: searchParams.get('priceMin') ? parseInt(searchParams.get('priceMin')!) : null,
     priceMax: searchParams.get('priceMax') ? parseInt(searchParams.get('priceMax')!) : null,
     sort: searchParams.get('sort') || 'recent',
@@ -113,15 +118,37 @@ export function TemplatesExplorer({ categories, styleTags, tags }: TemplatesExpl
           <>
             <TemplatesGrid templates={templates} />
             {pagination.totalPages > 1 && (
-              <Pagination
-                currentPage={pagination.page}
-                totalPages={pagination.totalPages}
-                onPageChange={(page) => {
-                  const params = new URLSearchParams(searchParams.toString());
-                  params.set('page', page.toString());
-                  router.push(`/templates?${params.toString()}`);
-                }}
-              />
+              <div className="flex justify-center gap-2 mt-8">
+                <button
+                  onClick={() => {
+                    if (pagination.page > 1) {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.set('page', (pagination.page - 1).toString());
+                      router.push(`/templates?${params.toString()}`);
+                    }
+                  }}
+                  disabled={pagination.page === 1}
+                  className="px-4 py-2 border rounded disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2">
+                  Page {pagination.page} of {pagination.totalPages}
+                </span>
+                <button
+                  onClick={() => {
+                    if (pagination.page < pagination.totalPages) {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.set('page', (pagination.page + 1).toString());
+                      router.push(`/templates?${params.toString()}`);
+                    }
+                  }}
+                  disabled={pagination.page === pagination.totalPages}
+                  className="px-4 py-2 border rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
             )}
           </>
         )}

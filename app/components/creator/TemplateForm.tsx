@@ -11,12 +11,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { ImageUploader } from './ImageUploader';
-import { StyleSelector } from '@/app/components/classification/StyleSelector';
-import { CategorySelector } from '@/app/components/classification/CategorySelector';
-import { SubcategorySelector } from '@/app/components/classification/SubcategorySelector';
-import { TagInput } from '@/app/components/classification/TagInput';
-import { TechStackSelector } from '@/app/components/classification/TechStackSelector';
-import { PlatformSelector } from '@/app/components/classification/PlatformSelector';
+import { StyleSelector } from '@/components/classification/StyleSelector';
+import { CategorySelector } from '@/components/classification/CategorySelector';
+import { SubcategorySelector } from '@/components/classification/SubcategorySelector';
+import { TagInput } from '@/components/classification/TagInput';
+import { TechStackSelector } from '@/components/classification/TechStackSelector';
+import { PlatformSelector } from '@/components/classification/PlatformSelector';
 import { FileUploadHTML } from './FileUploadHTML';
 import { FileUploadZip } from './FileUploadZip';
 import { Editor } from '@/app/components/Editor';
@@ -30,8 +30,8 @@ interface TemplateFormProps {
   categories: Array<{
     id: string;
     name: string;
-    description?: string;
-    icon?: string;
+    description?: string | null;
+    icon?: string | null;
     subcategories: Array<{
       id: string;
       name: string;
@@ -114,7 +114,7 @@ export function TemplateForm({ categories, styleTags, tags, initialData, templat
     formDataObj.append('tagIds', JSON.stringify(formData.tagIds));
     formDataObj.append('platforms', JSON.stringify(formData.platforms));
     formDataObj.append('files', JSON.stringify(formData.files));
-    formDataObj.append('description', formData.description);
+    formDataObj.append('description', typeof formData.description === 'string' ? formData.description : JSON.stringify(formData.description));
     
     if (isEdit && templateId) {
       formDataObj.append('templateId', templateId);
@@ -336,7 +336,7 @@ export function TemplateForm({ categories, styleTags, tags, initialData, templat
                       value={formData.liveDemoUrl}
                       onChange={(e) => setFormData({ ...formData, liveDemoUrl: e.target.value })}
                       placeholder="https://your-demo.com"
-                      required={formData.techStack !== 'HTML'}
+                      required={formData.techStack === TechStack.REACT_VITE || formData.techStack === TechStack.NEXTJS}
                     />
                   </div>
                 </>

@@ -8,12 +8,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { TECH_STACKS, getTechStackDisplayName, PLATFORMS, getPlatformDisplayName } from '@/app/lib/classification';
-import { StyleSelector } from '@/app/components/classification/StyleSelector';
-import { CategorySelector } from '@/app/components/classification/CategorySelector';
-import { SubcategorySelector } from '@/app/components/classification/SubcategorySelector';
-import { TagInput } from '@/app/components/classification/TagInput';
-import { PlatformSelector } from '@/app/components/classification/PlatformSelector';
+import { StyleSelector } from '@/components/classification/StyleSelector';
+import { CategorySelector } from '@/components/classification/CategorySelector';
+import { SubcategorySelector } from '@/components/classification/SubcategorySelector';
+import { TagInput } from '@/components/classification/TagInput';
+import { PlatformSelector } from '@/components/classification/PlatformSelector';
 import { formatPrice } from '@/app/lib/utils';
+import { PlatformType } from '@prisma/client';
 
 interface FilterSidebarProps {
   filters: {
@@ -22,7 +23,7 @@ interface FilterSidebarProps {
     subcategories?: string[];
     tags?: string[];
     techStack?: string | null;
-    platforms?: string[];
+    platforms?: PlatformType[];
     priceMin?: number | null;
     priceMax?: number | null;
     sort?: string;
@@ -126,8 +127,7 @@ export function FilterSidebar({ filters, onFilterChange, categories, styleTags, 
         <Label className="mb-3 block">Styles</Label>
         <StyleSelector
           selected={filters.styles || []}
-          onSelectionChange={(styles) => onFilterChange({ styles })}
-          styleTags={styleTags}
+          onChange={(styles) => onFilterChange({ styles })}
         />
       </div>
 
@@ -137,7 +137,7 @@ export function FilterSidebar({ filters, onFilterChange, categories, styleTags, 
         <Label className="mb-3 block">Categories</Label>
         <CategorySelector
           selected={filters.categories || []}
-          onSelectionChange={(categories) => onFilterChange({ categories })}
+          onChange={(categories) => onFilterChange({ categories })}
           categories={categories}
         />
       </div>
@@ -149,8 +149,9 @@ export function FilterSidebar({ filters, onFilterChange, categories, styleTags, 
             <Label className="mb-3 block">Subcategories</Label>
             <SubcategorySelector
               selected={filters.subcategories || []}
-              onSelectionChange={(subcategories) => onFilterChange({ subcategories })}
-              categories={categories.filter((c) => filters.categories?.includes(c.id))}
+              onChange={(subcategories) => onFilterChange({ subcategories })}
+              subcategories={categories.flatMap((c) => c.subcategories.map(sub => ({ ...sub, categoryId: c.id })))}
+              selectedCategories={filters.categories}
             />
           </div>
         </>
@@ -162,7 +163,7 @@ export function FilterSidebar({ filters, onFilterChange, categories, styleTags, 
         <Label className="mb-3 block">Tags</Label>
         <TagInput
           selected={filters.tags || []}
-          onSelectionChange={(tags) => onFilterChange({ tags })}
+          onChange={(tags) => onFilterChange({ tags })}
           suggestions={tags}
         />
       </div>
@@ -173,7 +174,7 @@ export function FilterSidebar({ filters, onFilterChange, categories, styleTags, 
         <Label className="mb-3 block">AI Platforms</Label>
         <PlatformSelector
           selected={filters.platforms || []}
-          onSelectionChange={(platforms) => onFilterChange({ platforms })}
+          onChange={(platforms) => onFilterChange({ platforms })}
         />
       </div>
     </div>

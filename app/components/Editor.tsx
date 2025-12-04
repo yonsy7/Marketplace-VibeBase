@@ -5,12 +5,12 @@ import {
   EditorContent,
   JSONContent,
   useEditor,
-  type Editor,
+  type Editor as TipTapEditorType,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
 
-export const MenuBar = ({ editor }: { editor: Editor | null }) => {
+export const MenuBar = ({ editor }: { editor: TipTapEditorType | null }) => {
   if (!editor) {
     return null;
   }

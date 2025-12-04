@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { RatingStars } from '@/components/ui/RatingStars';
+import { RatingStars } from '@/app/components/ui/RatingStars';
 import { Package, ShoppingCart, Heart, Star } from 'lucide-react';
 
 interface PublicProfileProps {

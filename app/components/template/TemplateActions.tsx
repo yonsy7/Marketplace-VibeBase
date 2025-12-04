@@ -6,7 +6,7 @@ import { Heart, Download } from 'lucide-react';
 import { BuyTemplate } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { LikeButton } from '@/components/ui/LikeButton';
+import { LikeButton } from '@/app/components/ui/LikeButton';
 
 interface TemplateActionsProps {
   template: {

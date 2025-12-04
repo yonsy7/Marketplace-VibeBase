@@ -10,14 +10,14 @@ interface TemplateHeaderProps {
   template: {
     id: string;
     title: string;
-    byline?: string;
+    byline?: string | null;
     price: number;
     techStack: string;
     ratingAverage: number;
     ratingCount: number;
     likeCount: number;
     styles: Array<{ styleTag: { name: string } }>;
-    categories: Array<{ category: { name: string; icon?: string } }>;
+    categories: Array<{ category: { name: string; icon?: string | null } }>;
     subcategories: Array<{ subcategory: { name: string } }>;
     tags: Array<{ tag: { name: string } }>;
     platforms: Array<{ platform: string }>;

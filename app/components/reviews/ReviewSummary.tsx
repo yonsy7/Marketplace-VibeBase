@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { RatingStars } from '@/components/ui/RatingStars';
+import { useState, useEffect, useCallback } from 'react';
+import { RatingStars } from '@/app/components/ui/RatingStars';
 import { Progress } from '@/components/ui/progress';
 
 interface ReviewSummaryProps {
@@ -20,15 +20,7 @@ export function ReviewSummary({ template }: ReviewSummaryProps) {
     distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
   });
 
-  useEffect(() => {
-    if (template.reviews && template.reviews.length > 0) {
-      calculateSummary(template.reviews);
-    } else {
-      fetchSummary();
-    }
-  }, [template.id]);
-
-  const calculateSummary = (reviews: Array<{ rating: number }>) => {
+  const calculateSummary = useCallback((reviews: Array<{ rating: number }>) => {
     const total = reviews.length;
     const average = total > 0 ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / total : 0;
     
@@ -38,26 +30,26 @@ export function ReviewSummary({ template }: ReviewSummaryProps) {
     });
 
     setSummary({ average, total, distribution });
-  };
+  }, []);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     try {
       const response = await fetch(`/api/reviews?templateId=${template.id}`);
       const data = await response.json();
       const reviews = data.reviews || [];
-
       calculateSummary(reviews);
-      
-      const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-      reviews.forEach((review: any) => {
-        distribution[review.rating as keyof typeof distribution]++;
-      });
-
-      setSummary({ average, total, distribution });
     } catch (error) {
       console.error('Error fetching review summary:', error);
     }
-  };
+  }, [template.id, calculateSummary]);
+
+  useEffect(() => {
+    if (template.reviews && template.reviews.length > 0) {
+      calculateSummary(template.reviews);
+    } else {
+      fetchSummary();
+    }
+  }, [template.id, template.reviews, calculateSummary, fetchSummary]);
 
   return (
     <div className="space-y-4">

@@ -59,7 +59,7 @@ export default async function TemplateReviewsPage({ params }: { params: { slug: 
               <CardTitle>Rating Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <ReviewSummary templateId={template.id} />
+              <ReviewSummary template={template as any} />
             </CardContent>
           </Card>
 

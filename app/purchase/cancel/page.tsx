@@ -23,7 +23,7 @@ export default function PurchaseCancelPage() {
         <CardContent className="space-y-4">
           <div className="text-center space-y-4">
             <p className="text-muted-foreground">
-              You can continue browsing and try again when you're ready.
+              You can continue browsing and try again when you&apos;re ready.
             </p>
             <div className="flex gap-4 justify-center">
               <Button asChild>
